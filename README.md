@@ -37,3 +37,27 @@ go run ./cmd/server
 curl http://localhost:8080/
 ```
 
+- Day 2: 已完成接口
+
+## 健康检查
+
+```zsh
+curl http://localhost:8080/health
+```
+
+## Chat接口
+
+```zsh
+curl -X POST
+http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"model":"mock-llm","prompt":"hello"}'
+```
+
+## API 文档
+
+详见:
+
+```text
+docs/api.md
+```

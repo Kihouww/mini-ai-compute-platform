@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/Kihouww/mini-ai-compute-platform/internal/api"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	r := gin.Default()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-              fmt.Fprintln(w, "mini-ai-compute-platform is running")
-	})
+	api.RegisterRoutes(r)
 
 	fmt.Println("server started at :8080")
 
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := r.Run(":8080"); err != nil {
 		panic(err)
 	}
 }
