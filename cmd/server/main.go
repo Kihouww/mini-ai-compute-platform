@@ -1,21 +1,37 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/Kihouww/mini-ai-compute-platform/internal/api"
+	"github.com/Kihouww/mini-ai-compute-platform/internal/config"
+	"github.com/Kihouww/mini-ai-compute-platform/internal/middleware"
 )
 
 func main() {
-	r := gin.Default()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
 
-	api.RegisterRoutes(r)
+	cfg, err := config.Load("config.yaml")
+	if err != nil {
+		logger.Error("load_config_failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 
-	fmt.Println("server started at :8080")
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.RequestLogger(logger))
 
-	if err := r.Run(":8080"); err != nil {
-		panic(err)
+	api.RegisterRoutes(r, cfg)
+
+	logger.Info("server_started", slog.Int("port", cfg.Server.Port))
+
+	if err := r.Run(cfg.Addr()); err != nil {
+		logger.Error("server_run_failed", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 }

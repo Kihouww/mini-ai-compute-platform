@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+llm:
+  default_model: mock-llm
+
+mysql:
+  host: localhost
+  port: 3306
+  user: root
+  password: password
+  database: ai_compute
+
+redis:
+  host: localhost
+  port: 6379
+

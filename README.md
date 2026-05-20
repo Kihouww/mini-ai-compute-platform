@@ -26,7 +26,7 @@ Go / Redis / MySQL / Docker / Prometheus / Grafana
 
 - Day 1: 项目初始化、Go 服务框架、README 初版
 
-## 本地运行
+### 本地运行
 
 ```zsh
 go run ./cmd/server
@@ -36,16 +36,16 @@ go run ./cmd/server
 ```zsh
 curl http://localhost:8080/
 ```
-
+---
 - Day 2: 已完成接口
 
-## 健康检查
+### 健康检查
 
 ```zsh
 curl http://localhost:8080/health
 ```
 
-## Chat接口
+### Chat接口
 
 ```zsh
 curl -X POST
@@ -54,10 +54,51 @@ http://localhost:8080/v1/chat \
   -d '{"model":"mock-llm","prompt":"hello"}'
 ```
 
-## API 文档
+### API 文档
 
 详见:
 
 ```text
 docs/api.md
+```
+---
+
+-Day 3: 配置文件、日志 + 项目结构规范化
+
+### 配置文件
+
+支持从 config.yaml 读取配置
+
+首次运行:
+
+```zsh
+cp config.example.yaml config.yaml
+go run ./cmd/server
+```
+### 请求日志
+
+服务启动后会打印启动日志，每次访问接口也会打印请求日志
+
+### 当前代码分层
+
+```text
+cmd/server		程序入口
+internal/api		路由、请求解析、响应返回
+internal/service	业务逻辑
+internal/model		请求和响应数据结构
+internal/config		配置文件读取
+internal/middleware	HTTP 中间件
+```
+
+### 验证接口
+
+```zsh
+curl http://localhost:8080/health
+```
+
+```zsh
+curl -X POST
+http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"hello"}'
 ```

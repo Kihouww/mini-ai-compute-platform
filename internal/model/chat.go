@@ -1,7 +1,7 @@
 package model
 
 type ChatRequest struct {
-	Model  string `json:"model" binding:"required"`
+	Model  string `json:"model"`
 	Prompt string `json:"prompt" binding:"required"`
 }
 

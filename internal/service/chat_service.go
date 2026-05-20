@@ -6,8 +6,12 @@ import (
 	"github.com/Kihouww/mini-ai-compute-platform/internal/model"
 )
 
-func Chat(req model.ChatRequest) model.ChatResponse {
+func Chat(req model.ChatRequest, defaultModel string) model.ChatResponse {
 	start := time.Now()
+
+	if req.Model == "" {
+		req.Model = defaultModel
+	}
 
 	time.Sleep(12 * time.Millisecond)
 

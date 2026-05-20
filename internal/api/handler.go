@@ -5,22 +5,31 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/Kihouww/mini-ai-compute-platform/internal/config"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/model"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/service"
 )
 
-func RegisterRoutes(r *gin.Engine) {
-	r.GET("/health", HealthHandler)
-	r.POST("/v1/chat", ChatHandler)
+type Handler struct {
+	Config *config.Config
 }
 
-func HealthHandler(c *gin.Context) {
+func RegisterRoutes(r *gin.Engine, cfg *config.Config) {
+	h := &Handler{
+		Config: cfg,
+	}
+
+	r.GET("/health", h.HealthHandler)
+	r.POST("/v1/chat", h.ChatHandler)
+}
+
+func (h *Handler) HealthHandler(c *gin.Context) {
 	Success(c, gin.H{
 		"status": "ok",
 	})
 }
 
-func ChatHandler(c *gin.Context) {
+func (h *Handler) ChatHandler(c *gin.Context) {
 	var req model.ChatRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -28,6 +37,6 @@ func ChatHandler(c *gin.Context) {
 		return
 	}
 
-	resp := service.Chat(req)
+	resp := service.Chat(req, h.Config.LLM.DefaultModel)
 	Success(c, resp)
 }
