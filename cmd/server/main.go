@@ -9,6 +9,7 @@ import (
 	"github.com/Kihouww/mini-ai-compute-platform/internal/api"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/config"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/middleware"
+	"github.com/Kihouww/mini-ai-compute-platform/internal/repository"
 )
 
 func main() {
@@ -22,12 +23,27 @@ func main() {
 		os.Exit(1)
 	}
 
+	db, err := repository.NewMySQLDB(cfg.MySQL)
+	if err != nil {
+		logger.Error("connect_mysql_failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	if err := repository.InitRequestLogsTable(db); err != nil {
+		logger.Error("init_request_logs_table_failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
+	requestLogRepo := repository.NewRequestLogRepository(db)
+
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestLogger(logger))
 
-	api.RegisterRoutes(r, cfg)
+	api.RegisterRoutes(r, cfg, requestLogRepo)
 
+	logger.Info("mysql_connected")
 	logger.Info("server_started", slog.Int("port", cfg.Server.Port))
 
 	if err := r.Run(cfg.Addr()); err != nil {

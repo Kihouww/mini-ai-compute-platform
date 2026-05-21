@@ -63,7 +63,7 @@ docs/api.md
 ```
 ---
 
--Day 3: 配置文件、日志 + 项目结构规范化
+- Day 3: 配置文件、日志 + 项目结构规范化
 
 ### 配置文件
 
@@ -101,4 +101,38 @@ curl -X POST
 http://localhost:8080/v1/chat \
   -H "Content-Type: application/json" \
   -d '{"prompt":"hello"}'
+```
+
+---
+
+- Day 4: 已完成接口
+
+### 启动 MySQL
+
+```zsh
+docker compose up -d mysql
+```
+
+### Chat 接口写入调用日志
+
+```zsh
+curl -X POST http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"model":"mock-llm","prompt":"hello mysql"}'
+```
+
+### 查询最近请求记录
+
+```zsh
+curl http://localhost:8080/v1/requests
+```
+
+## MySQL 调用日志
+
+调用记录写入 `request_logs` 表。
+
+可通过以下命令查看：
+
+```zsh
+docker exec -it mini-ai-mysql mysql -uroot -ppassword ai_compute -e "SELECT id, model, prompt, status, created_at FROM request_logs ORDER BY id DESC LIMIT 5;"
 ```
