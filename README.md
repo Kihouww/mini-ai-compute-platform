@@ -24,7 +24,7 @@ Go / Redis / MySQL / Docker / Prometheus / Grafana
 
 ## 当前进度
 
-- Day 1: 项目初始化、Go 服务框架、README 初版
+- Day 1: 项目初始化、Go 服务框架
 
 ### 本地运行
 
@@ -37,7 +37,7 @@ go run ./cmd/server
 curl http://localhost:8080/
 ```
 ---
-- Day 2: 已完成接口
+- Day 2: 接口
 
 ### 健康检查
 
@@ -105,7 +105,7 @@ http://localhost:8080/v1/chat \
 
 ---
 
-- Day 4: 已完成接口
+- Day 4: MySQL
 
 ### 启动 MySQL
 
@@ -139,7 +139,7 @@ docker exec -it mini-ai-mysql mysql -uroot -ppassword ai_compute -e "SELECT id, 
 
 ---
 
-## Day 5: 已完成能力
+- Day 5: Redis
 
 ### 启动 Redis
 
