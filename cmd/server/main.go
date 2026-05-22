@@ -35,15 +35,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	redisClient, err := repository.NewRedisClient(cfg.Redis)
+	if err != nil {
+		logger.Error("connect_redis_failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	defer redisClient.Close()
+
 	requestLogRepo := repository.NewRequestLogRepository(db)
+	authMiddleware := middleware.AuthMiddleware(cfg.Auth.APIKeys)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestLogger(logger))
 
-	api.RegisterRoutes(r, cfg, requestLogRepo)
+	api.RegisterRoutes(r, cfg, requestLogRepo, authMiddleware)
 
 	logger.Info("mysql_connected")
+	logger.Info("redis_connected")
 	logger.Info("server_started", slog.Int("port", cfg.Server.Port))
 
 	if err := r.Run(cfg.Addr()); err != nil {

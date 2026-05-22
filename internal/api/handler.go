@@ -16,15 +16,23 @@ type Handler struct {
 	RequestLogRepo *repository.RequestLogRepository
 }
 
-func RegisterRoutes(r *gin.Engine, cfg *config.Config, requestLogRepo *repository.RequestLogRepository) {
+func RegisterRoutes(
+	r *gin.Engine,
+	cfg *config.Config,
+	requestLogRepo *repository.RequestLogRepository,
+	authMiddleware gin.HandlerFunc,
+) {
 	h := &Handler{
 		Config:         cfg,
 		RequestLogRepo: requestLogRepo,
 	}
 
 	r.GET("/health", h.HealthHandler)
-	r.POST("/v1/chat", h.ChatHandler)
-	r.GET("/v1/requests", h.ListRequestsHandler)
+
+	v1 := r.Group("/v1")
+	v1.Use(authMiddleware)
+	v1.POST("/chat", h.ChatHandler)
+	v1.GET("/requests", h.ListRequestsHandler)
 }
 
 func (h *Handler) HealthHandler(c *gin.Context) {
@@ -43,9 +51,16 @@ func (h *Handler) ChatHandler(c *gin.Context) {
 
 	resp := service.Chat(req, h.Config.LLM.DefaultModel)
 
+	apiKey := ""
+	if value, exists := c.Get("api_key"); exists {
+		if key, ok := value.(string); ok {
+			apiKey = key
+		}
+	}
+
 	requestLog := &model.RequestLog{
 		UserID:       "anonymous",
-		APIKey:       "",
+		APIKey:       apiKey,
 		Model:        resp.Model,
 		Prompt:       req.Prompt,
 		Response:     resp.Answer,

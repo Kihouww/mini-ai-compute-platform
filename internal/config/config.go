@@ -12,6 +12,7 @@ type Config struct {
 	LLM    LLMConfig    `yaml:"llm"`
 	MySQL  MySQLConfig  `yaml:"mysql"`
 	Redis  RedisConfig  `yaml:"redis"`
+	Auth   AuthConfig   `yaml:"auth"`
 }
 
 type ServerConfig struct {
@@ -35,6 +36,10 @@ type RedisConfig struct {
 	Port int    `yaml:"port"`
 }
 
+type AuthConfig struct {
+	APIKeys []string `yaml:"api_keys"`
+}
+
 func Default() *Config {
 	return &Config{
 		Server: ServerConfig{
@@ -56,6 +61,10 @@ func Default() *Config {
 		Redis: RedisConfig{
 			Host: "localhost",
 			Port: 6379,
+		},
+
+		Auth: AuthConfig{
+			APIKeys: []string{"test-api-key"},
 		},
 	}
 }

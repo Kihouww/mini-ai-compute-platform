@@ -152,3 +152,45 @@ GET /v1/requests
 | code | message | 说明 |
 | --- | --- | --- |
 | 500 | query request logs failed | 查询请求日志失败 |
+
+---
+
+## API Key 鉴权
+
+### 请求头格式
+
+```http
+Authorization: Bearer test-api-key
+```
+
+### 鉴权规则
+
+| 场景 | HTTP 状态码 | code | message |
+| --- | --- | --- | --- |
+| 未提供 Authorization | 401 | 401 | missing authorization header |
+| Authorization 格式错误 | 401 | 401 | invalid authorization format |
+| API Key 为空 | 401 | 401 | empty api key |
+| API Key 错误 | 403 | 403 | invalid api key |
+
+### 需要鉴权的接口
+
+当前 `/v1` 分组下的接口都需要鉴权：
+
+- POST /v1/chat
+- GET /v1/requests
+
+### Chat 接口示例
+
+```zsh
+curl -X POST http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer test-api-key" \
+  -d '{"model":"mock-llm","prompt":"hello auth"}'
+```
+
+### 查询请求记录示例
+
+```zsh
+curl http://localhost:8080/v1/requests \
+  -H "Authorization: Bearer test-api-key"
+```

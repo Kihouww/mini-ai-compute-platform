@@ -136,3 +136,41 @@ curl http://localhost:8080/v1/requests
 ```zsh
 docker exec -it mini-ai-mysql mysql -uroot -ppassword ai_compute -e "SELECT id, model, prompt, status, created_at FROM request_logs ORDER BY id DESC LIMIT 5;"
 ```
+
+---
+
+## Day 5: 已完成能力
+
+### 启动 Redis
+
+```bash
+docker compose up -d redis
+```
+
+### Redis 连接测试
+
+服务启动时会 ping Redis。成功后日志中会输出：
+
+```text
+redis_connected
+```
+
+### Chat 接口鉴权
+
+`/v1/chat` 需要携带 API Key：
+
+```zsh
+curl -X POST http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer test-api-key" \
+  -d '{"model":"mock-llm","prompt":"hello auth"}'
+```
+
+### 查询请求记录
+
+`/v1/requests` 同样需要携带 API Key：
+
+```zsh
+curl http://localhost:8080/v1/requests \
+  -H "Authorization: Bearer test-api-key"
+```
