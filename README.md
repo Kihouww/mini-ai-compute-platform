@@ -2,7 +2,11 @@
 
 # Mini AI Compute Platform
 
-[![Go](assets/img-001.bin)](https://golang.org/) [![Gin](assets/img-002.bin)](https://gin-gonic.com/) [![MySQL](assets/img-003.bin)](https://www.mysql.com/) [![Redis](assets/img-004.bin)](https://redis.io/) [![Docker](assets/img-005.bin)](https://www.docker.com/)
+[![Go](https://img.shields.io/badge/Go-1.22-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/)
+[![Gin](https://img.shields.io/badge/Gin-Web%20Framework-00ADD8?style=flat-square&logo=gin&logoColor=white)](https://gin-gonic.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 **一个面向 LLM 推理服务的轻量级 AI Compute Platform。**
 
