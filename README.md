@@ -10,7 +10,7 @@
 
 **一个面向 LLM 推理服务的轻量级 AI Compute Platform。**
 
-当前项目模拟 AI 平台中的推理请求入口，支持 HTTP API、API Key 鉴权、Redis 限流、MySQL 调用日志和 Docker Compose 本地开发环境。
+模拟 AI Platform 的推理请求入口，支持 HTTP API、API Key 鉴权、Redis 限流、MySQL 调用日志和 Docker Compose 本地开发环境。
 
 </div>
 
