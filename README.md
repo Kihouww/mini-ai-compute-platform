@@ -1,214 +1,215 @@
+<div align="center">
+
 # Mini AI Compute Platform
 
-一个面向LLM推理服务的轻量级AI Compute Platform
+[![Go](assets/img-001.bin)](https://golang.org/) [![Gin](assets/img-002.bin)](https://gin-gonic.com/) [![MySQL](assets/img-003.bin)](https://www.mysql.com/) [![Redis](assets/img-004.bin)](https://redis.io/) [![Docker](assets/img-005.bin)](https://www.docker.com/)
 
-## 当前目标
+**一个面向 LLM 推理服务的轻量级 AI Compute Platform。**
 
-- 用户通过HTTP API提交推理请求
-- 后端完成鉴权、限流、模型路由、调用记录和监控
-- 支持Docker Compose一键部署
+当前项目模拟 AI 平台中的推理请求入口，支持 HTTP API、API Key 鉴权、Redis 限流、MySQL 调用日志和 Docker Compose 本地开发环境。
+
+</div>
+
+---
 
 ## 技术栈
 
-Go / Redis / MySQL / Docker / Prometheus / Grafana
+* Go
+* Gin
+* MySQL
+* Redis
+* Docker Compose
 
-## 第一阶段功能
+---
 
-- REST API
-- LLM 请求转发
-- 调用日志
-- API KEY 鉴权
-- Redis 限流
-- SSE 流式响应
-- Prometheus 指标
+## 功能列表
 
-## 当前进度
+* 健康检查接口
+* Chat Mock 推理接口
+* 统一响应格式
+* API Key 鉴权
+* Redis 固定窗口限流
+* MySQL 请求日志记录
+* 查询最近请求记录
+* Docker Compose 启动 MySQL / Redis
 
-- Day 1: 项目初始化、Go 服务框架
+---
 
-### 本地运行
+## 项目架构
 
-```zsh
+```mermaid
+flowchart TD
+
+    A[Client] --> B[API Server]
+
+    B --> C[Auth Middleware]
+
+    C --> D[Rate Limit Middleware]
+
+    D --> E[Chat Service]
+
+    E --> F[Mock LLM]
+
+    F --> G[MySQL Request Logs]
+```
+
+> Redis 用于 API Key 维度限流
+
+## 目录结构
+
+```plaintext
+.
+├── Dockerfile
+├── README.md
+├── cmd
+│   └── server
+│       └── main.go
+├── config.example.yaml
+├── docker-compose.yml
+├── docs
+│   ├── api.md
+│   └── architecture.md
+├── go.mod
+├── go.sum
+├── internal
+│   ├── api
+│   │   ├── handler.go
+│   │   └── response.go
+│   ├── config
+│   │   └── config.go
+│   ├── middleware
+│   │   ├── auth.go
+│   │   ├── logger.go
+│   │   └── rate_limit.go
+│   ├── model
+│   │   └── chat.go
+│   ├── repository
+│   │   ├── mysql.go
+│   │   ├── redis.go
+│   │   └── request_log_repository.go
+│   └── service
+│       └── chat_service.go
+└── scripts
+    ├── check.sh
+    └── mysql
+        └── init.sql
+```
+
+## 本地启动
+
+### 1. 准备配置文件
+
+```bash
+cp config.example.yaml config.yaml
+```
+
+默认 API Key：
+
+```plaintext
+test-api-key
+```
+
+### 2. 启动 MySQL 和 Redis
+
+```bash
+docker compose up -d mysql redis
+```
+
+如果当前用户没有 Docker 权限，可以临时使用：
+
+```bash
+sudo docker compose up -d mysql redis
+```
+
+### 3. 启动 Go 服务
+
+```bash
 go run ./cmd/server
 ```
-访问：
 
-```zsh
-curl http://localhost:8080/
+服务默认监听：
+
+```plaintext
+http://localhost:8080
 ```
----
-- Day 2: 接口
+
+## 接口测试
 
 ### 健康检查
 
-```zsh
+```bash
 curl http://localhost:8080/health
 ```
 
-### Chat接口
+### Chat 接口
 
-```zsh
-curl -X POST
-http://localhost:8080/v1/chat \
-  -H "Content-Type: application/json" \
-  -d '{"model":"mock-llm","prompt":"hello"}'
-```
-
-### API 文档
-
-详见:
-
-```text
-docs/api.md
-```
----
-
-- Day 3: 配置文件、日志 + 项目结构规范化
-
-### 配置文件
-
-支持从 config.yaml 读取配置
-
-首次运行:
-
-```zsh
-cp config.example.yaml config.yaml
-go run ./cmd/server
-```
-### 请求日志
-
-服务启动后会打印启动日志，每次访问接口也会打印请求日志
-
-### 当前代码分层
-
-```text
-cmd/server		程序入口
-internal/api		路由、请求解析、响应返回
-internal/service	业务逻辑
-internal/model		请求和响应数据结构
-internal/config		配置文件读取
-internal/middleware	HTTP 中间件
-```
-
-### 验证接口
-
-```zsh
-curl http://localhost:8080/health
-```
-
-```zsh
-curl -X POST
-http://localhost:8080/v1/chat \
-  -H "Content-Type: application/json" \
-  -d '{"prompt":"hello"}'
-```
-
----
-
-- Day 4: MySQL
-
-### 启动 MySQL
-
-```zsh
-docker compose up -d mysql
-```
-
-### Chat 接口写入调用日志
-
-```zsh
+```bash
 curl -X POST http://localhost:8080/v1/chat \
-  -H "Content-Type: application/json" \
-  -d '{"model":"mock-llm","prompt":"hello mysql"}'
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer test-api-key" \
+  -d '{"model":"mock-llm","prompt":"hello"}'
 ```
 
 ### 查询最近请求记录
 
-```zsh
-curl http://localhost:8080/v1/requests
-```
-
-## MySQL 调用日志
-
-调用记录写入 `request_logs` 表。
-
-可通过以下命令查看：
-
-```zsh
-docker exec -it mini-ai-mysql mysql -uroot -ppassword ai_compute -e "SELECT id, model, prompt, status, created_at FROM request_logs ORDER BY id DESC LIMIT 5;"
-```
-
----
-
-- Day 5: Redis
-
-### 启动 Redis
-
 ```bash
-docker compose up -d redis
-```
-
-### Redis 连接测试
-
-服务启动时会 ping Redis。成功后日志中会输出：
-
-```text
-redis_connected
-```
-
-### Chat 接口鉴权
-
-`/v1/chat` 需要携带 API Key：
-
-```zsh
-curl -X POST http://localhost:8080/v1/chat \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer test-api-key" \
-  -d '{"model":"mock-llm","prompt":"hello auth"}'
-```
-
-### 查询请求记录
-
-`/v1/requests` 同样需要携带 API Key：
-
-```zsh
 curl http://localhost:8080/v1/requests \
-  -H "Authorization: Bearer test-api-key"
+  -H "Authorization: Bearer test-api-key"
 ```
-
----
-
-## Day 6: Redis 限流
-
-`/v1/chat` 支持基于 API Key 的简单限流。
-
-当前规则：每个 API Key 每分钟最多 20 次请求
-
-### 正常请求
-
-```bash
-curl -X POST http://localhost:8080/v1/chat \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer test-api-key" \
-  -d '{"model":"mock-llm","prompt":"hello rate limit"}'
-```
-
-### 测试
+### 限流测试
 
 ```bash
 for i in $(seq 1 25); do
-  curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/v1/chat \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer test-api-key" \
-    -d "{\"model\":\"mock-llm\",\"prompt\":\"hello $i\"}"
+
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/v1/chat \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer test-api-key" \
+    -d "{\"model\":\"mock-llm\",\"prompt\":\"hello $i\"}"
+
 done
 ```
 
-超限返回：
+超过限制后返回：
 
 ```json
 {
-  "code": 429,
-  "message": "rate limit exceeded",
-  "data": null
+  "code": 429,
+  "message": "rate limit exceeded",
+  "data": null
 }
 ```
+## 数据库表
+
+请求日志写入 MySQL `request_logs` 表。
+
+查看最近记录：
+
+```bash
+docker exec -it mini-ai-mysql mysql -uroot -ppassword ai_compute \
+
+  -e "SELECT id, api_key, model, prompt, status, created_at FROM request_logs ORDER BY id DESC LIMIT 5;"
+```
+
+## API 文档
+
+详见：
+
+```plaintext
+docs/api.md
+```
+
+## 后续计划
+
+- [ ] SSE 流式响应
+
+- [ ] 多模型路由
+
+- [ ] Token 成本统计
+
+- [ ] Prometheus 指标
+
+- [ ] Grafana 监控面板
+
+- [ ] 压测与性能优化
+
+- [ ] 更完善的用户与 API Key 管理
