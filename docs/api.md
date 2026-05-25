@@ -194,3 +194,63 @@ curl -X POST http://localhost:8080/v1/chat \
 curl http://localhost:8080/v1/requests \
   -H "Authorization: Bearer test-api-key"
 ```
+
+---
+
+## Redis 限流
+
+### 限流规则
+
+当前基于 API Key 做简单固定窗口限流。
+
+限流 key：
+
+```text
+rate_limit:{api_key}:{minute}
+```
+
+示例：
+
+```text
+rate_limit:test-api-key:202605251430
+```
+
+### 当前限制
+
+每个 API Key 每分钟最多请求 20 次。
+
+配置项：
+
+```yaml
+rate_limit:
+  per_minute: 20
+```
+
+### 超限响应
+
+HTTP 状态码：
+
+```text
+429 Too Many Requests
+```
+
+响应示例：
+
+```json
+{
+  "code": 429,
+  "message": "rate limit exceeded",
+  "data": null
+}
+```
+
+### 测试命令
+
+```bash
+for i in $(seq 1 25); do
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/v1/chat \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer test-api-key" \
+    -d "{\"model\":\"mock-llm\",\"prompt\":\"hello $i\"}"
+done
+```

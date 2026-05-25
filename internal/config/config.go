@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	LLM    LLMConfig    `yaml:"llm"`
-	MySQL  MySQLConfig  `yaml:"mysql"`
-	Redis  RedisConfig  `yaml:"redis"`
-	Auth   AuthConfig   `yaml:"auth"`
+	Server    ServerConfig    `yaml:"server"`
+	LLM       LLMConfig       `yaml:"llm"`
+	MySQL     MySQLConfig     `yaml:"mysql"`
+	Redis     RedisConfig     `yaml:"redis"`
+	Auth      AuthConfig      `yaml:"auth"`
+	RateLimit RateLimitConfig `yaml:"rate_limit"`
 }
 
 type ServerConfig struct {
@@ -38,6 +39,10 @@ type RedisConfig struct {
 
 type AuthConfig struct {
 	APIKeys []string `yaml:"api_keys"`
+}
+
+type RateLimitConfig struct {
+	PerMinute int `yaml:"per_minute"`
 }
 
 func Default() *Config {
@@ -66,6 +71,9 @@ func Default() *Config {
 		Auth: AuthConfig{
 			APIKeys: []string{"test-api-key"},
 		},
+		RateLimit: RateLimitConfig{
+			PerMinute: 20,
+		},
 	}
 }
 
@@ -82,6 +90,10 @@ func Load(path string) (*Config, error) {
 
 	if err := yaml.Unmarshal(data, cfg); err != nil {
 		return nil, fmt.Errorf("parse config file failed: %w", err)
+	}
+
+	if cfg.RateLimit.PerMinute <= 0 {
+		cfg.RateLimit.PerMinute = 0
 	}
 
 	return cfg, nil

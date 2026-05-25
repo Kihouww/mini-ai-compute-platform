@@ -18,3 +18,7 @@ redis:
 auth:
   api_keys:
     - test-api-key
+
+rate_limit:
+  per_minute:20
+

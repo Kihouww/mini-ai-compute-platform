@@ -174,3 +174,41 @@ curl -X POST http://localhost:8080/v1/chat \
 curl http://localhost:8080/v1/requests \
   -H "Authorization: Bearer test-api-key"
 ```
+
+---
+
+## Day 6: Redis 限流
+
+`/v1/chat` 支持基于 API Key 的简单限流。
+
+当前规则：每个 API Key 每分钟最多 20 次请求
+
+### 正常请求
+
+```bash
+curl -X POST http://localhost:8080/v1/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer test-api-key" \
+  -d '{"model":"mock-llm","prompt":"hello rate limit"}'
+```
+
+### 测试
+
+```bash
+for i in $(seq 1 25); do
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/v1/chat \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer test-api-key" \
+    -d "{\"model\":\"mock-llm\",\"prompt\":\"hello $i\"}"
+done
+```
+
+超限返回：
+
+```json
+{
+  "code": 429,
+  "message": "rate limit exceeded",
+  "data": null
+}
+```

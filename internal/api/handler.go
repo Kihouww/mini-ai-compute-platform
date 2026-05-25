@@ -21,6 +21,7 @@ func RegisterRoutes(
 	cfg *config.Config,
 	requestLogRepo *repository.RequestLogRepository,
 	authMiddleware gin.HandlerFunc,
+	rateLimitMiddleware gin.HandlerFunc,
 ) {
 	h := &Handler{
 		Config:         cfg,
@@ -31,6 +32,8 @@ func RegisterRoutes(
 
 	v1 := r.Group("/v1")
 	v1.Use(authMiddleware)
+	v1.Use(rateLimitMiddleware)
+
 	v1.POST("/chat", h.ChatHandler)
 	v1.GET("/requests", h.ListRequestsHandler)
 }

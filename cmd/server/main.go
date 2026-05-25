@@ -44,15 +44,17 @@ func main() {
 
 	requestLogRepo := repository.NewRequestLogRepository(db)
 	authMiddleware := middleware.AuthMiddleware(cfg.Auth.APIKeys)
+	rateLimitMiddleware := middleware.RateLimitMiddleware(redisClient, cfg.RateLimit.PerMinute)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestLogger(logger))
 
-	api.RegisterRoutes(r, cfg, requestLogRepo, authMiddleware)
+	api.RegisterRoutes(r, cfg, requestLogRepo, authMiddleware, rateLimitMiddleware)
 
 	logger.Info("mysql_connected")
 	logger.Info("redis_connected")
+	logger.Info("rate_limit_enabled", slog.Int("per_minute", cfg.RateLimit.PerMinute))
 	logger.Info("server_started", slog.Int("port", cfg.Server.Port))
 
 	if err := r.Run(cfg.Addr()); err != nil {
