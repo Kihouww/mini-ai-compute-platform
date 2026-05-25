@@ -10,6 +10,7 @@ import (
 	"github.com/Kihouww/mini-ai-compute-platform/internal/config"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/middleware"
 	"github.com/Kihouww/mini-ai-compute-platform/internal/repository"
+	"github.com/Kihouww/mini-ai-compute-platform/internal/service"
 )
 
 func main() {
@@ -43,6 +44,8 @@ func main() {
 	defer redisClient.Close()
 
 	requestLogRepo := repository.NewRequestLogRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
 	authMiddleware := middleware.AuthMiddleware(cfg.Auth.APIKeys)
 	rateLimitMiddleware := middleware.RateLimitMiddleware(redisClient, cfg.RateLimit.PerMinute)
 
@@ -50,6 +53,7 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestLogger(logger))
 
+	api.RegisterUserRoutes(r, userService)
 	api.RegisterRoutes(r, cfg, requestLogRepo, authMiddleware, rateLimitMiddleware)
 
 	logger.Info("mysql_connected")

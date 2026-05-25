@@ -223,3 +223,29 @@ docs/api.md
 - [ ] 压测与性能优化
 
 - [ ] 更完善的用户与 API Key 管理
+
+---
+
+> 以下为阶段性日志
+
+## Day 8: 用户
+
+### 用户注册
+
+```bash
+curl -X POST http://localhost:8080/v1/users/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"123456","email":"test@example.com"}'
+```
+
+### 用户登录
+
+```bash
+curl -X POST http://localhost:8080/v1/users/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"123456"}'
+```
+
+### 密码存储
+
+用户密码不会明文存储，使用 bcrypt 生成 `password_hash` 后写入 MySQL。

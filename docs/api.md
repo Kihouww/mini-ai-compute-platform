@@ -183,3 +183,80 @@ rate_limit:{api_key}:{minute}
   "data": null
 }
 ```
+
+---
+
+## 用户注册
+
+### 请求
+
+```http
+POST /v1/users/register
+```
+
+### 是否需要鉴权
+
+否
+
+### 请求参数
+
+```json
+{
+  "username": "testuser",
+  "password": "123456",
+  "email": "test@example.com"
+}
+```
+
+### 响应示例
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "user_id": 1,
+    "username": "testuser"
+  }
+}
+```
+
+---
+
+## 用户登录
+
+### 请求
+
+```http
+POST /v1/users/login
+```
+
+### 是否需要鉴权
+
+否
+
+### 请求参数
+
+```json
+{
+  "username": "testuser",
+  "password": "123456"
+}
+```
+
+### 响应示例
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "token": "mock-token-user-1-xxxxxxxxxx",
+    "user_id": 1
+  }
+}
+```
+
+### 说明
+
+当前 token 是 mock token，用于 Day 8 验证登录流程。后续升级为 JWT。
