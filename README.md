@@ -43,14 +43,24 @@
 
 ```mermaid
 flowchart TD
-    A[Client] --> B[API Server]
-    B --> C[Auth Middleware]
-    C --> D[Rate Limit Middleware]
-    D --> E[Chat Handler]
-    E --> F[Chat Service]
-    F --> G[Mock LLM]
-    E --> H[(MySQL Request Logs)]
-    D --> I[(Redis)]
+    client["Client"]
+    api["API Server"]
+    auth["Auth Middleware"]
+    limiter["Rate Limit Middleware"]
+    handler["Chat Handler"]
+    service["Chat Service"]
+    llm["Mock LLM"]
+    mysql["MySQL Request Logs"]
+    redis["Redis"]
+
+    client --> api
+    api --> auth
+    auth --> limiter
+    limiter --> handler
+    handler --> service
+    service --> llm
+    handler --> mysql
+    limiter --> redis
 ```
 
 > Redis 用于 API Key 维度限流
